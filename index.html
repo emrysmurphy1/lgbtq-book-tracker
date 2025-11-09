@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Track LGBTQ+ books you've read and rate your favorites. Discover diverse representation in literature.">
+    <title>LGBTQ+ Book Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1 class="title">
+                <span class="rainbow-text">LGBTQ+ Book Tracker</span>
+            </h1>
+            <p class="subtitle">Discover and track books with LGBTQ+ representation</p>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <!-- Stats Section -->
+            <section class="stats-section">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-books">100</div>
+                    <div class="stat-label">Total Books</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="books-read">0</div>
+                    <div class="stat-label">Books Read</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="avg-rating">0.0</div>
+                    <div class="stat-label">Your Avg Rating</div>
+                </div>
+            </section>
+
+            <!-- Filters and Controls -->
+            <section class="controls-section">
+                <div class="search-box">
+                    <input
+                        type="text"
+                        id="search-input"
+                        placeholder="Search by title, author, or representation..."
+                        aria-label="Search books"
+                    >
+                </div>
+
+                <div class="filter-controls">
+                    <div class="filter-group">
+                        <label for="status-filter">Reading Status:</label>
+                        <select id="status-filter" aria-label="Filter by reading status">
+                            <option value="all">All Books</option>
+                            <option value="read">Read</option>
+                            <option value="unread">Not Read Yet</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="representation-filter">Representation:</label>
+                        <select id="representation-filter" aria-label="Filter by LGBTQ+ representation">
+                            <option value="all">All Types</option>
+                            <option value="Gay">Gay</option>
+                            <option value="Lesbian">Lesbian</option>
+                            <option value="Bisexual">Bisexual</option>
+                            <option value="Trans">Trans</option>
+                            <option value="Non-binary">Non-binary</option>
+                            <option value="Queer">Queer</option>
+                            <option value="Asexual">Asexual</option>
+                            <option value="Aromantic">Aromantic</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="genre-filter">Genre:</label>
+                        <select id="genre-filter" aria-label="Filter by genre">
+                            <option value="all">All Genres</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="sort-by">Sort By:</label>
+                        <select id="sort-by" aria-label="Sort books">
+                            <option value="title">Title (A-Z)</option>
+                            <option value="author">Author (A-Z)</option>
+                            <option value="rating-high">Rating (High to Low)</option>
+                            <option value="rating-low">Rating (Low to High)</option>
+                            <option value="year-new">Year (Newest First)</option>
+                            <option value="year-old">Year (Oldest First)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="reset-btn" id="reset-filters">Reset Filters</button>
+            </section>
+
+            <!-- Books Grid -->
+            <section class="books-section">
+                <div class="books-count">
+                    Showing <span id="showing-count">0</span> books
+                </div>
+                <div class="books-grid" id="books-grid">
+                    <!-- Books will be dynamically inserted here -->
+                </div>
+                <div class="no-results" id="no-results" style="display: none;">
+                    <p>No books found matching your criteria.</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Book Detail Modal -->
+    <div class="modal" id="book-modal" role="dialog" aria-labelledby="modal-title" aria-hidden="true">
+        <div class="modal-overlay" id="modal-overlay"></div>
+        <div class="modal-content">
+            <button class="modal-close" id="modal-close" aria-label="Close modal">&times;</button>
+            <div class="modal-body" id="modal-body">
+                <!-- Book details will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 LGBTQ+ Book Tracker | Celebrating diverse voices in literature</p>
+            <p class="footer-note">Data stored locally in your browser</p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
