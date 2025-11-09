@@ -16,6 +16,7 @@ A beautifully designed web application for tracking LGBTQ+ books you've read and
   - Average ratings
   - Publication year
   - Genre classification
+  - Page count for each book
 
 ### 🎨 User Interface
 - **Responsive design** that works on mobile, tablet, and desktop
@@ -32,14 +33,36 @@ A beautifully designed web application for tracking LGBTQ+ books you've read and
   - Total books in database
   - Books you've read
   - Your average rating
+  - Average pages of books you've read
 - **Local storage** - all your data is saved in your browser
+
+### 🎯 Smart Recommendations
+- **Personalized book recommendations** based on your ratings
+- Analyzes books you've rated 4+ stars
+- Recommends similar books by:
+  - Genre preferences
+  - LGBTQ+ representation types you enjoy
+  - Book length preferences
+  - Overall ratings
+- Shows up to 6 recommendations with reasons why each book matches your taste
+- Automatically updates as you rate more books
+
+### 📊 Book Length Visualization
+- **Interactive bar chart** showing distribution of books by length
+- Categories: Short (<250 pages), Medium (250-400), Long (>400)
+- Statistics panel displaying:
+  - Average book length across all books
+  - Shortest and longest books in the collection
+  - Median book length
 
 ### 🔍 Advanced Filtering & Sorting
 - **Search** by title, author, or representation type
 - **Filter by reading status**: All books, Read, or Unread
 - **Filter by representation type**: Gay, Lesbian, Trans, Non-binary, etc.
 - **Filter by genre**: Contemporary, Fantasy, Historical, etc.
-- **Sort by**: Title, Author, Rating (High/Low), or Publication Year
+- **Filter by book length**: Short (<250 pages), Medium (250-400), or Long (>400)
+- **Filter by content warnings**: All books, No warnings only, or Has warnings
+- **Sort by**: Title, Author, Rating (High/Low), Publication Year, or Book Length
 - **Reset filters** button to start fresh
 
 ### ⚠️ Content Warnings
