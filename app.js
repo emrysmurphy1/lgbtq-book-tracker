@@ -18,6 +18,8 @@ const elements = {
     statusFilter: document.getElementById('status-filter'),
     representationFilter: document.getElementById('representation-filter'),
     genreFilter: document.getElementById('genre-filter'),
+    pagesFilter: document.getElementById('pages-filter'),
+    triggerWarningFilter: document.getElementById('trigger-warning-filter'),
     sortBy: document.getElementById('sort-by'),
     resetFilters: document.getElementById('reset-filters'),
     showingCount: document.getElementById('showing-count'),
@@ -25,6 +27,11 @@ const elements = {
     totalBooks: document.getElementById('total-books'),
     booksRead: document.getElementById('books-read'),
     avgRating: document.getElementById('avg-rating'),
+    avgPages: document.getElementById('avg-pages'),
+    recommendationsSection: document.getElementById('recommendations-section'),
+    recommendationsGrid: document.getElementById('recommendations-grid'),
+    lengthChart: document.getElementById('length-chart'),
+    vizStats: document.getElementById('viz-stats'),
     modal: document.getElementById('book-modal'),
     modalOverlay: document.getElementById('modal-overlay'),
     modalClose: document.getElementById('modal-close'),
@@ -48,6 +55,8 @@ async function init() {
         filteredBooks = [...allBooks];
         renderBooks();
         updateStats();
+        renderBookLengthVisualization();
+        renderRecommendations();
 
         // Set up event listeners
         setupEventListeners();
@@ -91,6 +100,8 @@ function setupEventListeners() {
     elements.statusFilter.addEventListener('change', applyFilters);
     elements.representationFilter.addEventListener('change', applyFilters);
     elements.genreFilter.addEventListener('change', applyFilters);
+    elements.pagesFilter.addEventListener('change', applyFilters);
+    elements.triggerWarningFilter.addEventListener('change', applyFilters);
     elements.sortBy.addEventListener('change', applyFilters);
     elements.resetFilters.addEventListener('click', resetFilters);
 
@@ -124,6 +135,8 @@ function applyFilters() {
     const statusFilter = elements.statusFilter.value;
     const repFilter = elements.representationFilter.value;
     const genreFilter = elements.genreFilter.value;
+    const pagesFilter = elements.pagesFilter.value;
+    const triggerWarningFilter = elements.triggerWarningFilter.value;
 
     filteredBooks = allBooks.filter(book => {
         // Search filter
@@ -147,7 +160,19 @@ function applyFilters() {
         const matchesGenre = genreFilter === 'all' ||
             book.genre === genreFilter;
 
-        return matchesSearch && matchesStatus && matchesRep && matchesGenre;
+        // Pages filter
+        const matchesPages = pagesFilter === 'all' ||
+            (pagesFilter === 'short' && book.pages < 250) ||
+            (pagesFilter === 'medium' && book.pages >= 250 && book.pages <= 400) ||
+            (pagesFilter === 'long' && book.pages > 400);
+
+        // Trigger warning filter
+        const hasWarnings = book.triggerWarnings.length > 0 && book.triggerWarnings[0] !== 'None';
+        const matchesTriggerWarning = triggerWarningFilter === 'all' ||
+            (triggerWarningFilter === 'none' && !hasWarnings) ||
+            (triggerWarningFilter === 'has-warnings' && hasWarnings);
+
+        return matchesSearch && matchesStatus && matchesRep && matchesGenre && matchesPages && matchesTriggerWarning;
     });
 
     // Apply sorting
@@ -175,6 +200,10 @@ function sortBooks() {
                 return b.publishYear - a.publishYear;
             case 'year-old':
                 return a.publishYear - b.publishYear;
+            case 'pages-short':
+                return a.pages - b.pages;
+            case 'pages-long':
+                return b.pages - a.pages;
             default:
                 return 0;
         }
@@ -187,6 +216,8 @@ function resetFilters() {
     elements.statusFilter.value = 'all';
     elements.representationFilter.value = 'all';
     elements.genreFilter.value = 'all';
+    elements.pagesFilter.value = 'all';
+    elements.triggerWarningFilter.value = 'all';
     elements.sortBy.value = 'title';
     applyFilters();
 }
@@ -315,6 +346,7 @@ function toggleReadStatus(bookId) {
     saveUserData();
     updateStats();
     renderBooks();
+    renderRecommendations();
 }
 
 // Open Modal
@@ -370,7 +402,12 @@ function openModal(bookId) {
             <p>${book.publishYear}</p>
         </div>
 
-        ${book.triggerWarnings.length > 0 ? `
+        <div class="modal-section">
+            <h3>Book Length</h3>
+            <p>${book.pages} pages</p>
+        </div>
+
+        ${book.triggerWarnings.length > 0 && book.triggerWarnings[0] !== 'None' ? `
             <div class="modal-section">
                 <h3>Content Warnings</h3>
                 <div>
@@ -445,6 +482,7 @@ function setUserRating(bookId, rating) {
     saveUserData();
     updateStats();
     renderBooks();
+    renderRecommendations();
 
     // Update modal display
     const userRating = userRatings[bookId] || 0;
@@ -460,6 +498,160 @@ function setUserRating(bookId, rating) {
     }
 }
 
+// Render Book Length Visualization
+function renderBookLengthVisualization() {
+    // Group books by length categories
+    const categories = {
+        'Short\n(<250)': allBooks.filter(b => b.pages < 250).length,
+        'Medium\n(250-400)': allBooks.filter(b => b.pages >= 250 && b.pages <= 400).length,
+        'Long\n(>400)': allBooks.filter(b => b.pages > 400).length
+    };
+
+    // Find max for scaling
+    const maxCount = Math.max(...Object.values(categories));
+
+    // Create chart bars
+    const chartHTML = Object.entries(categories).map(([label, count]) => {
+        const height = (count / maxCount) * 100;
+        return `
+            <div class="chart-bar" style="height: ${height}%;">
+                <div class="chart-bar-value">${count}</div>
+                <div class="chart-bar-label">${label}</div>
+            </div>
+        `;
+    }).join('');
+
+    elements.lengthChart.innerHTML = chartHTML;
+
+    // Calculate statistics
+    const allPages = allBooks.map(b => b.pages);
+    const avgPages = Math.round(allPages.reduce((sum, pages) => sum + pages, 0) / allPages.length);
+    const minPages = Math.min(...allPages);
+    const maxPages = Math.max(...allPages);
+    const medianPages = allPages.sort((a, b) => a - b)[Math.floor(allPages.length / 2)];
+
+    // Display statistics
+    elements.vizStats.innerHTML = `
+        <div class="viz-stat-item">
+            <h4>Average</h4>
+            <div class="value">${avgPages}</div>
+            <div class="subtext">pages per book</div>
+        </div>
+        <div class="viz-stat-item">
+            <h4>Shortest</h4>
+            <div class="value">${minPages}</div>
+            <div class="subtext">pages</div>
+        </div>
+        <div class="viz-stat-item">
+            <h4>Longest</h4>
+            <div class="value">${maxPages}</div>
+            <div class="subtext">pages</div>
+        </div>
+        <div class="viz-stat-item">
+            <h4>Median</h4>
+            <div class="value">${medianPages}</div>
+            <div class="subtext">pages</div>
+        </div>
+    `;
+}
+
+// Render Recommendations
+function renderRecommendations() {
+    // Get user's high-rated books (4+ stars)
+    const highRatedBooks = Object.entries(userRatings)
+        .filter(([id, rating]) => rating >= 4)
+        .map(([id]) => allBooks.find(b => b.id === parseInt(id)))
+        .filter(Boolean);
+
+    if (highRatedBooks.length === 0) {
+        elements.recommendationsSection.style.display = 'none';
+        return;
+    }
+
+    // Show recommendations section
+    elements.recommendationsSection.style.display = 'block';
+
+    // Analyze user preferences
+    const preferredGenres = {};
+    const preferredRepresentation = {};
+
+    highRatedBooks.forEach(book => {
+        preferredGenres[book.genre] = (preferredGenres[book.genre] || 0) + 1;
+        book.lgbtqRepresentation.forEach(rep => {
+            preferredRepresentation[rep] = (preferredRepresentation[rep] || 0) + 1;
+        });
+    });
+
+    // Score unread books
+    const unreadBooks = allBooks.filter(book => !readBooks.has(book.id));
+
+    const scoredBooks = unreadBooks.map(book => {
+        let score = 0;
+        let reasons = [];
+
+        // Genre match (high weight)
+        if (preferredGenres[book.genre]) {
+            score += preferredGenres[book.genre] * 3;
+            reasons.push(`Same genre as books you loved (${book.genre})`);
+        }
+
+        // Representation match (high weight)
+        book.lgbtqRepresentation.forEach(rep => {
+            if (preferredRepresentation[rep]) {
+                score += preferredRepresentation[rep] * 2;
+                if (!reasons.some(r => r.includes('representation'))) {
+                    reasons.push(`Similar representation (${rep})`);
+                }
+            }
+        });
+
+        // High average rating
+        if (book.averageRating >= 4.3) {
+            score += 2;
+            reasons.push(`Highly rated (${book.averageRating.toFixed(1)} stars)`);
+        }
+
+        // Similar page count to books they've enjoyed
+        const avgPagesLiked = Math.round(
+            highRatedBooks.reduce((sum, b) => sum + b.pages, 0) / highRatedBooks.length
+        );
+        const pageDiff = Math.abs(book.pages - avgPagesLiked);
+        if (pageDiff < 100) {
+            score += 1;
+        }
+
+        return {
+            book,
+            score,
+            reason: reasons[0] || 'Based on your reading preferences'
+        };
+    });
+
+    // Sort by score and get top 6
+    const recommendations = scoredBooks
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 6);
+
+    // Render recommendations
+    elements.recommendationsGrid.innerHTML = recommendations.map(({ book, reason }) => `
+        <div class="recommendation-card" data-book-id="${book.id}">
+            <div class="recommendation-badge">Recommended</div>
+            <h3>${truncate(book.title, 50)}</h3>
+            <p class="author">by ${book.author}</p>
+            <div class="stars">${generateStars(book.averageRating)} ${book.averageRating.toFixed(1)}</div>
+            <p class="match-reason">💡 ${reason}</p>
+        </div>
+    `).join('');
+
+    // Add click handlers
+    document.querySelectorAll('.recommendation-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const bookId = parseInt(card.dataset.bookId);
+            openModal(bookId);
+        });
+    });
+}
+
 // Update Statistics
 function updateStats() {
     elements.totalBooks.textContent = allBooks.length;
@@ -472,6 +664,14 @@ function updateStats() {
         : '0.0';
 
     elements.avgRating.textContent = avgRating;
+
+    // Calculate average pages read
+    const readBooksArray = Array.from(readBooks).map(id => allBooks.find(b => b.id === id)).filter(Boolean);
+    const avgPages = readBooksArray.length > 0
+        ? Math.round(readBooksArray.reduce((sum, book) => sum + book.pages, 0) / readBooksArray.length)
+        : 0;
+
+    elements.avgPages.textContent = avgPages;
 }
 
 // Initialize app when DOM is ready

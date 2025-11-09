@@ -33,6 +33,32 @@
                     <div class="stat-number" id="avg-rating">0.0</div>
                     <div class="stat-label">Your Avg Rating</div>
                 </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="avg-pages">0</div>
+                    <div class="stat-label">Avg Pages Read</div>
+                </div>
+            </section>
+
+            <!-- Recommendations Section -->
+            <section class="recommendations-section" id="recommendations-section" style="display: none;">
+                <h2 class="section-title">📚 Recommended For You</h2>
+                <p class="section-subtitle">Based on books you've rated highly</p>
+                <div class="recommendations-grid" id="recommendations-grid">
+                    <!-- Recommendations will be dynamically inserted here -->
+                </div>
+            </section>
+
+            <!-- Book Length Visualization -->
+            <section class="visualization-section">
+                <h2 class="section-title">📊 Book Length Distribution</h2>
+                <div class="viz-container">
+                    <div class="viz-chart" id="length-chart">
+                        <!-- Chart will be dynamically inserted here -->
+                    </div>
+                    <div class="viz-stats" id="viz-stats">
+                        <!-- Stats will be dynamically inserted here -->
+                    </div>
+                </div>
             </section>
 
             <!-- Filters and Controls -->
@@ -79,6 +105,25 @@
                     </div>
 
                     <div class="filter-group">
+                        <label for="pages-filter">Book Length:</label>
+                        <select id="pages-filter" aria-label="Filter by book length">
+                            <option value="all">All Lengths</option>
+                            <option value="short">Short (&lt; 250 pages)</option>
+                            <option value="medium">Medium (250-400 pages)</option>
+                            <option value="long">Long (&gt; 400 pages)</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="trigger-warning-filter">Content Warnings:</label>
+                        <select id="trigger-warning-filter" aria-label="Filter by content warnings">
+                            <option value="all">All Books</option>
+                            <option value="none">No Warnings Only</option>
+                            <option value="has-warnings">Has Warnings</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
                         <label for="sort-by">Sort By:</label>
                         <select id="sort-by" aria-label="Sort books">
                             <option value="title">Title (A-Z)</option>
@@ -87,6 +132,8 @@
                             <option value="rating-low">Rating (Low to High)</option>
                             <option value="year-new">Year (Newest First)</option>
                             <option value="year-old">Year (Oldest First)</option>
+                            <option value="pages-short">Pages (Shortest First)</option>
+                            <option value="pages-long">Pages (Longest First)</option>
                         </select>
                     </div>
                 </div>
